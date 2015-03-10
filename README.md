@@ -12,18 +12,22 @@ Provides instructions to create a service account
 https://github.com/auth0/node-jsonwebtoken
 tool to sign 
 
-Convert secret key
+* Convert secret key
+
 Downloaded a p12 file, need to convert
+
 requires the key : 'notasecret'
-openssl pkcs12 -in privatekey.p12 -nodes -nocerts > privatekey.pem
+
+`openssl pkcs12 -in privatekey.p12 -nodes -nocerts > privatekey.pem`
 
 
 
+* rest api for analytics
 https://developers.google.com/analytics/devguides/reporting/core/v3/reference
-rest api for analytics
 
 
-Give service user access to analyitcs at account level
+Give service user access to analytics at account level
+- use admin tools on web
 
 ```
 /* 

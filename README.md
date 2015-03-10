@@ -1,6 +1,8 @@
 Node JS Google Analytics REST tools
 ===================================
 
+(Loosely based on https://www.npmjs.com/package/ga-report which requires you to provide password!)
+
 Users a service account to access Google Analytics REST service (GET only)
 
 

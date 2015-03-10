@@ -24,3 +24,31 @@ rest api for analytics
 
 
 Give service user access to analyitcs at account level
+
+```
+/* 
+* Example use of API
+*/
+var path = require('path');
+var Report = require('ga-service-cert');
+
+var config = {
+	SERVICE_EMAIL     : "123456789-2eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com"
+}
+
+var query = {
+	'ids': 'ga:123456',
+	'start-date': '2015-02-24',
+	'end-date': '2015-03-10',
+	'metrics': 'ga:users'
+};
+
+var report = new Report(path.resolve(__dirname+'/privatekey.pem'), config.SERVICE_EMAIL);
+
+report.on('ready', function() {
+	report.get(query, function(err, data) {
+		if(err) throw err
+		console.log(data);
+	});
+});
+```

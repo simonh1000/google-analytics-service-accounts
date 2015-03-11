@@ -1,6 +1,6 @@
 {
   "name": "ga-service-acct",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Node interface to get data from Google Analytics REST service",
   "main": "index.js",
   "scripts": {

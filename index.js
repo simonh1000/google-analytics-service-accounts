@@ -1,4 +1,8 @@
-"use strict"
+/* global require, module, console */
+
+(function() {
+
+"use strict";
 
 var fs = require('fs');
 var events = require('events');
@@ -9,7 +13,7 @@ var OAuth2 = google.auth.OAuth2;
 var jwt    = require("jsonwebtoken");
 var request = require('request');
 
-var Report = function(fname, service_email) {
+var Report = function (fname, service_email) {
 	var _this = this;
 	events.EventEmitter.call(this);
 	this.service_email = service_email;
@@ -22,7 +26,7 @@ var Report = function(fname, service_email) {
 	});
 
 	return this;
-}
+};
 
 util.inherits(Report, events.EventEmitter);
 
@@ -36,11 +40,11 @@ Report.prototype.getToken = function (cb) {
 
 	// Don't know what iat is
 	var claim_set = {
-		"iss": this.service_email,
+		"iss"  : this.service_email,
 		"scope": 'https://www.googleapis.com/auth/analytics.readonly',
-		"aud": 'https://www.googleapis.com/oauth2/v3/token',
-		"exp": seconds,
-		"iat": seconds
+		"aud"  : 'https://www.googleapis.com/oauth2/v3/token',
+		"exp"  : seconds,
+		"iat"  : seconds
 	};
 
 	// this is the .pem file provided by Google console
@@ -52,7 +56,7 @@ Report.prototype.getToken = function (cb) {
 	};
 
 	request.post({
-		url:'https://www.googleapis.com/oauth2/v3/token',
+		url : 'https://www.googleapis.com/oauth2/v3/token',
 		form: post_obj
 	}, function(err, data) {
 		if (err) return cb(err);
@@ -60,7 +64,7 @@ Report.prototype.getToken = function (cb) {
 		var body = JSON.parse(data.body);
 		_this.token = body.access_token;
 		// console.log(_this.token);
-		cb(null)
+		cb(null);
 	});
 };
 
@@ -68,9 +72,7 @@ Report.prototype.get = function (options, cb) {
 	var optionsString = json2url(options);
 	// console.log(this.token);
 	var auth_obj = {
-		'auth': {
-			'bearer': this.token
-		}
+		'auth': { 'bearer': this.token }
 	};
 
 	return request.get('https://www.googleapis.com/analytics/v3/data/ga?'+optionsString,
@@ -78,7 +80,7 @@ Report.prototype.get = function (options, cb) {
 		function(err, data) {
 			if (err) return cb(err, null);
 
-			console.log("get: ", JSON.parse(data.body));
+			// console.log("get: ", JSON.parse(data.body));
 			return cb(null, JSON.parse(data.body));
 		}
 	);
@@ -86,10 +88,10 @@ Report.prototype.get = function (options, cb) {
 
 var json2url = function (obj) {
 	var res = [];
-	var i = 0;
 	for (var key in obj) {
-		res[i] = key+"="+obj[key];
-		i++;
+		res.push(key + "=" + obj[key]);
 	}
 	return res.join('&');
 };
+
+}());

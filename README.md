@@ -35,23 +35,21 @@ Use GA admin tools on web when logged in as a user with management rights
 var path = require('path');
 var Report = require('ga-service-cert');
 
-var config = {
-	SERVICE_EMAIL     : "123456789-2eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com"
-}
+var SERVICE_EMAIL = "123456789-2eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com";
 
 var query = {
-	'ids': 'ga:123456',
+	'ids': 'ga:123456', 			// Update with your own view information
 	'start-date': '2015-02-24',
 	'end-date': '2015-03-10',
 	'metrics': 'ga:users'
 };
 
-var report = new Report(path.resolve(__dirname+'/privatekey.pem'), config.SERVICE_EMAIL);
+var report = new Report(path.resolve(__dirname+'/privatekey.pem'), SERVICE_EMAIL);
 
 report.on('ready', function() {
 	report.get(query, function(err, data) {
 		if(err) throw err
-		console.log(data);
+		console.log(data); 			// e.g. [ [ '5140' ] ]
 	});
 });
 ```

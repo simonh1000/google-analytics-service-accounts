@@ -2,22 +2,33 @@
 
 var fs = require('fs');
 var events = require('events');
-var util = require('util');
+var util    = require('util');
+var request = require('request');
+var async   = require('async') ;
 
 var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 var jwt    = require("jsonwebtoken");
-var request = require('request');
+
+var numberMinutes = 5; 		// less than 60
 
 var Report = function(fname, service_email) {
-	var _this = this;
-	events.EventEmitter.call(this);
-	this.service_email = service_email;
-	this.fname = fname;
 
-	this.getToken(function(err) {
+	var _this = this;
+	this.fname = fname;
+	this.service_email = service_email;
+	this.exp = new Date();
+
+	events.EventEmitter.call(this);
+
+	this.getToken(function(err, token) {
 		if (err) throw err;
-		// console.log(_this.token);
+		_this.token = token;
+
+		var now = new Date();
+		_this.exp = now.setTime(now.getTime() + 60*numberMinutes*1000);
+		// console.log("token expires: ", _this.exp);
+
 		return _this.emit('ready');
 	});
 
@@ -29,12 +40,11 @@ util.inherits(Report, events.EventEmitter);
 module.exports = Report;
 
 Report.prototype.getToken = function (cb) {
-	var _this = this;
-
 	var d = new Date();
-	var seconds = d.getTime() / 1000 + 60*59;		// validity less than 1 hour
+	var seconds = d.getTime() / 1000 + 60*numberMinutes;		// validity less than 1 hour
 
 	// Don't know what iat is
+	// exp is number of seconds since 1970....
 	var claim_set = {
 		"iss": this.service_email,
 		"scope": 'https://www.googleapis.com/auth/analytics.readonly',
@@ -55,33 +65,39 @@ Report.prototype.getToken = function (cb) {
 		url:'https://www.googleapis.com/oauth2/v3/token',
 		form: post_obj
 	}, function(err, data) {
-		if (err) return cb(err);
+		if (err) return cb(err, null);
 
 		var body = JSON.parse(data.body);
-		_this.token = body.access_token;
-		// console.log(_this.token);
-		cb(null)
+		cb(null, body.access_token);
 	});
 };
 
 Report.prototype.get = function (options, cb) {
+	var _this = this;
 	var optionsString = json2url(options);
 	// console.log(this.token);
-	var auth_obj = {
-		'auth': {
-			'bearer': this.token
-		}
-	};
 
-	return request.get('https://www.googleapis.com/analytics/v3/data/ga?'+optionsString,
-		auth_obj,
-		function(err, data) {
+	async.series([
+		function(cb) {
+			var now = new Date();
+			if (now < _this.exp)
+				cb(null)
+			else {
+				console.log("ga-service-act.get: renewing expired token");
+				_this.getToken(cb);
+			}
+		},
+		function(cb) {
+			var auth_obj = {
+				'auth': { 'bearer': _this.token }
+			};
+			request.get('https://www.googleapis.com/analytics/v3/data/ga?'+optionsString, auth_obj, cb);
+		}
+	], function(err, data) {
 			if (err) return cb(err, null);
-
-			console.log("get: ", JSON.parse(data.body));
-			return cb(null, JSON.parse(data.body));
-		}
-	);
+			var body = JSON.parse(data[1][0].body);
+			return cb(null, body);
+	});
 };
 
 var json2url = function (obj) {

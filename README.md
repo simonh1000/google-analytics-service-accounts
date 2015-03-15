@@ -1,15 +1,12 @@
-Node JS Google Analytics REST tools
-===================================
+Google Analytics REST api for service accounts
+==============================================
 
-(Loosely based on [ga-report](https://www.npmjs.com/package/ga-report). I developed this module as ga-report requires you to provide your Google password, which is not ideal and triggers subsequent scary warning messages from the big G!)
+(Loosely based on [ga-report](https://www.npmjs.com/package/ga-report) - shares same API. I developed this module as ga-report requires you to provide your Google password, which is not ideal and triggers subsequent scary warning messages from the big G!)
 
 This module uses a 'service account' instead to authenticate and access Google Analytics REST service (GET only)
 
 ## Service accounts
-This module is an implementation thos [these instructions](https://developers.google.com/accounts/docs/OAuth2ServiceAccount)
-
-https://github.com/auth0/node-jsonwebtoken
-tool to sign 
+This module is an implementation [these instructions for Google developers](https://developers.google.com/accounts/docs/OAuth2ServiceAccount)
 
 ### Convert secret key
 After creating the service email, you will download a `.p12` file than needs to be converted to a `.pem` file using this command:
@@ -18,10 +15,11 @@ After creating the service email, you will download a `.p12` file than needs to 
 
 openssl asks for the private key, which is 'notasecret'
 
+### Sign secret key
+Uses [Json Web tools](https://github.com/auth0/node-jsonwebtoken) to sign private key before sending to Google to exchange for an access token
 
 ### rest api for analytics
 See [here](https://developers.google.com/analytics/devguides/reporting/core/v3/reference)
-
 
 ### Ensure service user has access to analytics
 Use GA admin tools on web when logged in as a user with management rights

@@ -1,28 +1,24 @@
 Google Analytics REST api for service accounts
 ==============================================
 
-(Loosely based on [ga-report](https://www.npmjs.com/package/ga-report) - shares same API. I developed this module as ga-report requires you to provide your Google password, which is not ideal and triggers subsequent scary warning messages from the big G!)
+This module uses a 'service account' instead to authenticate and access Google Analytics REST service (GET only). In essence, it is an implementation of [these Google developers instructions](https://developers.google.com/accounts/docs/OAuth2ServiceAccount)
 
-This module uses a 'service account' instead to authenticate and access Google Analytics REST service (GET only)
+There are two things you need also to setup to use this code
 
-## Service accounts
-This module is an implementation [these instructions for Google developers](https://developers.google.com/accounts/docs/OAuth2ServiceAccount)
-
-### Convert secret key
+## 1. Convert secret key
 After creating the service email, you will download a `.p12` file than needs to be converted to a `.pem` file using this command:
 
 `openssl pkcs12 -in privatekey.p12 -nodes -nocerts > privatekey.pem`
 
 openssl asks for the private key, which is 'notasecret'
 
-### Sign secret key
-Uses [Json Web tools](https://github.com/auth0/node-jsonwebtoken) to sign private key before sending to Google to exchange for an access token
+The code uses [Json Web tools](https://github.com/auth0/node-jsonwebtoken) to sign the secret key before sending to Google to exchange for an access token
 
-### rest api for analytics
-See [here](https://developers.google.com/analytics/devguides/reporting/core/v3/reference)
-
-### Ensure service user has access to analytics
+### 2. Ensure service user has access to analytics
 Use GA admin tools on web when logged in as a user with management rights
+
+### Google Analytics REST API
+See [here](https://developers.google.com/analytics/devguides/reporting/core/v3/reference)
 
 ## Example of usage
 
@@ -36,7 +32,7 @@ var Report = require('ga-service-cert');
 var SERVICE_EMAIL = "123456789-2eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com";
 
 var query = {
-	'ids': 'ga:123456', 			// Update with your own view information
+	'ids': 'ga:123456', 			// Update ids with your own view information
 	'start-date': '2015-02-24',
 	'end-date': '2015-03-10',
 	'metrics': 'ga:users'
@@ -51,3 +47,6 @@ report.on('ready', function() {
 	});
 });
 ```
+
+(This module is loosely based on [ga-report](https://www.npmjs.com/package/ga-report), in that it shares the same API. I developed it as ga-report requires you to provide your Google password, which is not ideal and triggers subsequent scary warning messages from the big G!)
+

@@ -14,7 +14,7 @@ var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 var jwt    = require("jsonwebtoken");
 
-var numberMinutes = 5; 		// less than 60
+var numberMinutes = 59; 		// less than 60
 
 var Report = function(fname, service_email) {
 

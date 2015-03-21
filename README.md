@@ -1,24 +1,20 @@
-Google Analytics REST api for service accounts
-==============================================
+## Google Analytics REST API via service accounts
 
-This module uses a 'service account' instead to authenticate and access Google Analytics REST service (GET only). In essence, it is an implementation of [these Google developers instructions](https://developers.google.com/accounts/docs/OAuth2ServiceAccount)
+This module uses oAuth to authenticate a Google 'service account' to gain access to the [Google Analytics REST API](https://developers.google.com/analytics/devguides/reporting/core/v3/reference) (GET only). In essence, it is an implementation of these [Google developers instructions](https://developers.google.com/accounts/docs/OAuth2ServiceAccount).
 
 There are two things you need also to setup to use this code
 
-## 1. Convert secret key
-After creating the service email, you will download a `.p12` file than needs to be converted to a `.pem` file using this command:
+### 1. Convert secret key
+After creating the service email, you will download a `.p12` key file that needs to be converted to a `.pem` file using:
 
 `openssl pkcs12 -in privatekey.p12 -nodes -nocerts > privatekey.pem`
 
-openssl asks for the private key, which is 'notasecret'
+openssl will ask for the private key, which Google has probably told you is 'notasecret'
 
-The code uses [Json Web tools](https://github.com/auth0/node-jsonwebtoken) to sign the secret key before sending to Google to exchange for an access token
+The code relies upon [Json Web tokens](https://github.com/auth0/node-jsonwebtoken) and uses the .pem file to sign the request object which is sent to Google for an access token.
 
 ### 2. Ensure service user has access to analytics
 Use GA admin tools on web when logged in as a user with management rights
-
-### Google Analytics REST API
-See [here](https://developers.google.com/analytics/devguides/reporting/core/v3/reference)
 
 ## Example of usage
 
@@ -49,4 +45,3 @@ report.on('ready', function() {
 ```
 
 (This module is loosely based on [ga-report](https://www.npmjs.com/package/ga-report), in that it shares the same API. I developed it as ga-report requires you to provide your Google password, which is not ideal and triggers subsequent scary warning messages from the big G!)
-

@@ -80,11 +80,14 @@ Report.prototype.get = function (options, cb) {
 	var _this = this;
 	var optionsString = json2url(options);
 	// console.log(this.token);
+
+	// If token expired then get new one before requesting data. 
+	// This pattern is an asynchronous if ... then
 	async.series([
 		function(cb) {
 			var now = new Date();
 			if (now < _this.exp)
-				cb(null)
+				cb(null);
 			else {
 				console.log("ga-service-act.get: renewing expired token");
 				_this.getToken(cb);
@@ -98,6 +101,8 @@ Report.prototype.get = function (options, cb) {
 		}
 	], function(err, data) {
 			if (err) return cb(err, null);
+			// data[1] contains data from second function in async.series
+			// data[1][0] contains ...
 			var body = JSON.parse(data[1][0].body);
 			return cb(null, body);
 	});

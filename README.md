@@ -1,8 +1,10 @@
 ## Google Analytics REST API via service accounts
 
-This module uses oAuth to authenticate a Google 'service account' to gain access to the [Google Analytics REST API](https://developers.google.com/analytics/devguides/reporting/core/v3/reference) (GET only). In essence, it is an implementation of these [Google developers instructions](https://developers.google.com/accounts/docs/OAuth2ServiceAccount).
+This library provides tools to use the [Google Analytics REST API](https://developers.google.com/analytics/devguides/reporting/core/v3/reference) (GET only).
 
-There are two things you need also to setup to use this code:
+Use of the REST API requires authentication, and this module provides an implementation of Google's [oAuth instructions](https://developers.google.com/accounts/docs/OAuth2ServiceAccount) for 'service accounts' using the oAuth part of the [Google api for Node library](https://github.com/google/google-api-nodejs-client).
+
+There are two additional steps you need to setup to use this code:
 
 ### 1. Convert secret key
 After creating the service email, you will download a `.p12` key file that needs to be converted to a `.pem` file using:

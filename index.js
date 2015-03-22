@@ -81,7 +81,7 @@ Report.prototype.get = function (options, cb) {
 	var optionsString = json2url(options);
 	// console.log(this.token);
 
-	// If token expired then get new one before requesting data. 
+	// If token expired then get new one before requesting data.
 	// This pattern is an asynchronous if ... then
 	async.series([
 		function(cb) {
@@ -106,6 +106,22 @@ Report.prototype.get = function (options, cb) {
 			var body = JSON.parse(data[1][0].body);
 			return cb(null, body);
 	});
+};
+
+Report.prototype.getManagement = function (options, cb) {
+	var _this = this;
+	var auth_obj = {
+		'auth': { 'bearer': _this.token }
+	};
+	request.get(
+		'https://www.googleapis.com/analytics/v3/management/accounts',
+		auth_obj,
+		function(err, data) {
+			if (err) return cb(err, null);
+			var body = JSON.parse(data.body);
+			return cb(null, body);
+		}
+	);
 };
 
 var json2url = function (obj) {

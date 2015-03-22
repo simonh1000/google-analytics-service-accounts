@@ -19,7 +19,7 @@ Use the online [GA Admin tools](https://www.google.com/analytics/web/?hl=en#mana
 ## Example of usage
 
 ```
-/* 
+/*
 * Example use of API
 */
 var path = require('path');
@@ -38,8 +38,20 @@ var report = new Report(path.resolve(__dirname+'/privatekey.pem'), SERVICE_EMAIL
 
 report.on('ready', function() {
 	report.get(query, function(err, data) {
-		if(err) throw err
+		if (err) throw err
 		console.log(data); 			// e.g. [ [ '5140' ] ]
+	});
+});
+```
+
+### Management data
+From version version 0.4, the code implements the simplest [management API](https://developers.google.com/analytics/devguides/config/mgmt/v3/mgmtRest) call (more to follow once I find a use case).
+
+```
+report.on('ready', function() {
+	report.getManagement(null, function(err, data) {
+			if (err) throw err
+			console.log(data.kind); 		// e.g. 'analytics#accounts'
 	});
 });
 ```

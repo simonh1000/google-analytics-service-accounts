@@ -1,9 +1,16 @@
 {
   "name": "ga-service-acct",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Google Analytics REST API via service account",
   "main": "index.js",
-  "keywords": ["Google", "Analytics", "REST", "report", "service", "accounts"],
+  "keywords": [
+    "Google",
+    "Analytics",
+    "REST",
+    "report",
+    "service",
+    "accounts"
+  ],
   "author": "Simon Hampton",
   "license": "GNU",
   "repository": "https://github.com/simonh1000/ga-service-acct",

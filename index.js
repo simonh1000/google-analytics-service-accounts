@@ -16,17 +16,17 @@ var jwt    = require("jsonwebtoken");
 
 var numberMinutes = 59; 		// until expires, must be < 60
 
-var Report = function(fname, service_email, debug) {
+var Report = function(private_key, service_email, debug) {
 
 	this.debug = debug || false;
 	var _this = this;
-	this.fname = fname;
+	// this.fname = fname;
 	this.service_email = service_email;
 	this.exp = new Date();
 
 	events.EventEmitter.call(this);
 
-	this.getToken(function(err, token) {
+	this.getToken(private_key, function(err, token) {
 		if (err) throw err;
 		_this.token = token;
 
@@ -44,7 +44,7 @@ util.inherits(Report, events.EventEmitter);
 
 module.exports = Report;
 
-Report.prototype.getToken = function (cb) {
+Report.prototype.getToken = function (private_key, cb) {
 	var _this = this;
 	var d = new Date();
 	var now = d.getTime() / 1000;			// start validity now
@@ -61,7 +61,7 @@ Report.prototype.getToken = function (cb) {
 	};
 
 	// this is the .pem file provided by Google console
-	var private_key = fs.readFileSync(this.fname);
+	// var private_key = fs.readFileSync(this.fname);
 	var signature = jwt.sign(claim_set, private_key, { algorithm: "RS256" });
 	var post_obj = {
 		grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",

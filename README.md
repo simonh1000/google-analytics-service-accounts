@@ -26,6 +26,7 @@ Use the online [GA Admin tools](https://www.google.com/analytics/web/?hl=en#mana
 */
 var path = require('path');
 var Report = require('ga-service-cert');
+var fs = require('fs');
 
 var SERVICE_EMAIL = "123456789-2eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com";
 
@@ -36,7 +37,9 @@ var query = {
 	'metrics': 'ga:users'
 };
 
-var report = new Report(path.resolve(__dirname+'/privatekey.pem'), SERVICE_EMAIL);
+var private_key = fs.readFileSync(__dirname+'/privatekey.pem', "utf8");
+
+var report = new Report(private_key, SERVICE_EMAIL, true);
 
 report.on('ready', function() {
 	report.get(query, function(err, data) {

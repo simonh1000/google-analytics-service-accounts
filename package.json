@@ -1,6 +1,6 @@
 {
   "name": "ga-service-acct",
-  "version": "0.4.1",
+  "version": "1.0.0",
   "description": "Google Analytics REST API via service account",
   "main": "index.js",
   "keywords": [

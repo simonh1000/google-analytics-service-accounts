@@ -1,19 +1,16 @@
 {
   "name": "ga-service-acct",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Google Analytics REST API via service account",
   "main": "index.js",
   "keywords": ["Google", "Analytics", "REST", "report", "service", "accounts"],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Simon Hampton",
   "license": "GNU",
   "repository": "https://github.com/simonh1000/ga-service-acct",
   "dependencies": {
     "async": "^0.9.0",
-    "googleapis": "^2.0.0", 
-    "jsonwebtoken": "^4.0.0",
+    "googleapis": "^2.0.0",
+    "jsonwebtoken": "^5.0.0",
     "request": "^2.53.0"
   }
 }

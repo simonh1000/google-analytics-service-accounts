@@ -59,3 +59,6 @@ report.on('ready', function() {
 ```
 
 (This module is loosely based on [ga-report](https://www.npmjs.com/package/ga-report), in that it shares the same API. I developed it as ga-report requires you to provide your Google password, which is not ideal from a security perspective, and triggers subsequent scary warning messages from the big G!)
+
+### Change log
+0.4.1 - updated jwt to 5.0 and fixed bug in iat time

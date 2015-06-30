@@ -14,10 +14,11 @@ var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 var jwt    = require("jsonwebtoken");
 
-var numberMinutes = 59; 		// less than 60
+var numberMinutes = 59; 		// until expires, must be < 60
 
-var Report = function(fname, service_email) {
+var Report = function(fname, service_email, debug) {
 
+	this.debug = debug || false;
 	var _this = this;
 	this.fname = fname;
 	this.service_email = service_email;
@@ -31,7 +32,7 @@ var Report = function(fname, service_email) {
 
 		var now = new Date();
 		_this.exp = now.setTime(now.getTime() + 60*numberMinutes*1000);
-		// console.log("token expires: ", _this.exp);
+		// console.log("ga-service-act: token expires: ", _this.exp);
 
 		return _this.emit('ready');
 	});
@@ -44,8 +45,10 @@ util.inherits(Report, events.EventEmitter);
 module.exports = Report;
 
 Report.prototype.getToken = function (cb) {
+	var _this = this;
 	var d = new Date();
-	var seconds = d.getTime() / 1000 + 60*numberMinutes;		// validity less than 1 hour
+	var now = d.getTime() / 1000;			// start validity now
+	var seconds = now + 60*numberMinutes;	// end validity less than 1 hour
 
 	// Don't know what iat is
 	// exp is number of seconds since 1970....
@@ -54,7 +57,7 @@ Report.prototype.getToken = function (cb) {
 		"scope": 'https://www.googleapis.com/auth/analytics.readonly',
 		"aud"  : 'https://www.googleapis.com/oauth2/v3/token',
 		"exp"  : seconds,
-		"iat"  : seconds
+		"iat"  : now
 	};
 
 	// this is the .pem file provided by Google console
@@ -70,8 +73,8 @@ Report.prototype.getToken = function (cb) {
 		form: post_obj
 	}, function(err, data) {
 		if (err) return cb(err, null);
-
 		var body = JSON.parse(data.body);
+		if (_this.debug) console.log(".getToken: token rcvd: ", body.access_token);
 		cb(null, body.access_token);
 	});
 };
@@ -104,6 +107,7 @@ Report.prototype.get = function (options, cb) {
 			// data[1] contains data from second function in async.series
 			// data[1][0] contains ...
 			var body = JSON.parse(data[1][0].body);
+			if (_this.debug) console.log(".get: ", body);
 			return cb(null, body);
 	});
 };

@@ -13,7 +13,7 @@ After creating the service email, you will download a `.p12` key file that needs
 
 openssl will ask for the private key, which Google has probably told you is 'notasecret'
 
-The code relies upon [Json Web tokens](https://github.com/auth0/node-jsonwebtoken) and uses the .pem file to sign the request object which is sent to Google for an access token.
+The code relies upon [Json Web tokens](https://github.com/auth0/node-jsonwebtoken) and uses the contents of the `.pem` file to sign the request object which is sent to Google for an access token.
 
 ### 2. Provide service user access
 Use the online [GA Admin tools](https://www.google.com/analytics/web/?hl=en#management/Settings/) "User Management" module to give your service user read access to your GA data (you will need yourself to have management rights to make this change).
@@ -64,4 +64,5 @@ report.on('ready', function() {
 (This module is loosely based on [ga-report](https://www.npmjs.com/package/ga-report), in that it shares the same API. I developed it as ga-report requires you to provide your Google password, which is not ideal from a security perspective, and triggers subsequent scary warning messages from the big G!)
 
 ### Change log
+1.0.0 - Breaking change: constructor bow takes the key, rather than filename (to work better with e.g. system variables)
 0.4.1 - updated jwt to 5.0 and fixed bug in iat time

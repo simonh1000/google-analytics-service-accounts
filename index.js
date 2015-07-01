@@ -4,8 +4,7 @@
 
 "use strict";
 
-// var fs = require('fs');
-var events = require('events');
+var events  = require('events');
 var util    = require('util');
 var request = require('request');
 var async   = require('async') ;
@@ -17,11 +16,9 @@ var jwt    = require("jsonwebtoken");
 var numberMinutes = 59; 		// until expires, must be < 60
 
 var Report = function(private_key, service_email, debug) {
-	var _this = this;
-	this.debug = debug || false;
 	this.private_key = private_key;
-	// this.fname = fname;
 	this.service_email = service_email;
+	this.debug = debug || false;
 
 	events.EventEmitter.call(this);
 
@@ -42,10 +39,10 @@ Report.prototype.getToken = function (cb) {
 	var _this = this;
 	// if (_this.debug) console.log(".getToken: ", _this.private_key);
 	var d = new Date();
-	var now = d.getTime() / 1000;			// start validity now
+	var now = d.getTime() / 1000;			// seconds, not milliseconds
 	var seconds = now + 60*numberMinutes;	// end validity less than 1 hour
 
-	// Don't know what iat is
+	// iat is current time
 	// exp is number of seconds since 1970....
 	var claim_set = {
 		"iss"  : this.service_email,
@@ -55,8 +52,6 @@ Report.prototype.getToken = function (cb) {
 		"iat"  : now
 	};
 
-	// this is the .pem file provided by Google console
-	// var private_key = fs.readFileSync(this.fname);
 	var signature = jwt.sign(claim_set, _this.private_key, { algorithm: "RS256" });
 	var post_obj = {
 		grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
@@ -68,20 +63,21 @@ Report.prototype.getToken = function (cb) {
 		form: post_obj
 	}, function(err, data) {
 		if (err) return cb(err, null);
+
 		var body = JSON.parse(data.body);
 		// save the new token
 		_this.token = body.access_token;
 
 		if (_this.debug) console.log(".getToken: token rcvd: ", body.access_token);
 
-		// rough and ready way to set expiry - should be based on info in jwt
-		// var decoded_token = jwt.decode(body.access_token);
-		// console.log(decoded_token);
+		// set expiry based on info in token
 		var now = new Date();
-		_this.exp = now.setTime(now.getTime() + body.expires_in*1000);
-		var tmp = new Date(_this.exp)
+		_this.exp = now.setTime(now.getTime() + body.expires_in * 1000);
+
+		var tmp = new Date(_this.exp);
 		if (_this.debug) console.log("expiry: ", tmp.toLocaleTimeString());
-		cb(null, body.access_token);
+
+		cb(null);
 	});
 };
 

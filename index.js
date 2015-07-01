@@ -4,7 +4,7 @@
 
 "use strict";
 
-var fs = require('fs');
+// var fs = require('fs');
 var events = require('events');
 var util    = require('util');
 var request = require('request');
@@ -78,7 +78,7 @@ Report.prototype.getToken = function (cb) {
 		// var decoded_token = jwt.decode(body.access_token);
 		// console.log(decoded_token);
 		var now = new Date();
-		_this.exp = now.setTime(now.getTime() + 60*numberMinutes*1000);
+		_this.exp = now.setTime(now.getTime() + body.expires_in*1000);
 		var tmp = new Date(_this.exp)
 		if (_this.debug) console.log("expiry: ", tmp.toLocaleTimeString());
 		cb(null, body.access_token);
@@ -110,7 +110,7 @@ Report.prototype.get = function (options, cb) {
 		}
 	], function(err, data) {
 			if (err) return cb(err, null);
-			// data[1] contains data from second function in async.series
+			// data[1] contains data from request.get
 			// data[1][0] contains ...
 			var body = JSON.parse(data[1][0].body);
 			// if (_this.debug) console.log(".get: ", body);

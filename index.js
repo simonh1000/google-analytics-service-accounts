@@ -19,6 +19,7 @@ var numberMinutes = 59; 		// until expires, must be < 60
 var Report = function(private_key, service_email, debug) {
 
 	this.debug = debug || false;
+	this.private_key = private_key;
 	var _this = this;
 	// this.fname = fname;
 	this.service_email = service_email;
@@ -26,7 +27,7 @@ var Report = function(private_key, service_email, debug) {
 
 	events.EventEmitter.call(this);
 
-	this.getToken(private_key, function(err, token) {
+	this.getToken(this.private_key, function(err, token) {
 		if (err) throw err;
 		_this.token = token;
 
@@ -93,7 +94,7 @@ Report.prototype.get = function (options, cb) {
 				cb(null);
 			else {
 				console.log("ga-service-act.get: renewing expired token");
-				_this.getToken(cb);
+				_this.getToken(this.private_key, cb);
 			}
 		},
 		function(cb) {

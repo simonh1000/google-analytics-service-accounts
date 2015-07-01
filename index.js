@@ -70,7 +70,7 @@ Report.prototype.getToken = function (cb) {
 		if (err) return cb(err, null);
 		var body = JSON.parse(data.body);
 		// save the new token
-		_this.token = token;
+		_this.token = body.access_token;
 
 		if (_this.debug) console.log(".getToken: token rcvd: ", body.access_token);
 

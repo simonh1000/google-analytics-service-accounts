@@ -31,8 +31,10 @@ var Report = (function (_events$EventEmitter) {
 
         events.EventEmitter.call(this);
 
-        this.getToken(function (err, token) {
-            if (err) throw err;
+        this.getToken(function (err) {
+            if (err) {
+                return _this.emit('auth_error', err);
+            }
 
             return _this.emit('ready');
         });
@@ -74,6 +76,8 @@ var Report = (function (_events$EventEmitter) {
                 var body = JSON.parse(data.body);
                 // save the new token
                 _this2.token = body.access_token;
+
+                if (typeof _this2.token == 'undefined') return cb('Request for auth token failed');
 
                 if (_this2.debug) console.log('.getToken: token rcvd: ', body.access_token);
 

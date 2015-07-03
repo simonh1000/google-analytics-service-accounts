@@ -18,8 +18,10 @@ class Report extends events.EventEmitter {
 
     	events.EventEmitter.call(this);
 
-    	this.getToken( (err, token) => {
-    		if (err) throw err;
+    	this.getToken( err => {
+    		if (err) {
+                return this.emit('auth_error', err);
+            }
 
     		return this.emit('ready');
     	});
@@ -55,6 +57,9 @@ class Report extends events.EventEmitter {
     		var body = JSON.parse(data.body);
     		// save the new token
     		this.token = body.access_token;
+
+            if ((typeof this.token) == 'undefined')
+                return cb("Request for auth token failed");
 
     		if (this.debug) console.log(".getToken: token rcvd: ", body.access_token);
 

@@ -47,6 +47,10 @@ report.on('ready', function() {
 		console.log(data); 			// e.g. [ [ '5140' ] ]
 	});
 });
+
+report.on('auth_error', function(err) {
+	console.log("Auth failed", err);
+});
 ```
 
 ### Management data
@@ -64,6 +68,6 @@ report.on('ready', function() {
 (This module is loosely based on [ga-report](https://www.npmjs.com/package/ga-report), in that it shares the same API. I developed it as ga-report requires you to provide your Google password, which is not ideal from a security perspective, and triggers subsequent scary warning messages from the big G!)
 
 ### Change log
-1.2.0 - Switched to ES6 for development; shipping with transpiled file
-1.0.0 - Breaking change: constructor bow takes the key, rather than filename (to work better with e.g. system variables)
-0.4.1 - updated jwt to 5.0 and fixed bug in iat time
+ - 1.2.0 - Switched to ES6 for development; shipping with transpiled file
+ - 1.0.0 - Breaking change: constructor bow takes the key, rather than filename (to work better with e.g. system variables)
+ - 0.4.1 - updated jwt to 5.0 and fixed bug in iat time

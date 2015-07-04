@@ -12,10 +12,10 @@ var request = require('request');
 var async = require('async');
 var events = require('events');
 var util = require('util');
-
-var google = require('googleapis');
-var OAuth2 = google.auth.OAuth2;
 var jwt = require('jsonwebtoken');
+
+// var google = require('googleapis');
+// var OAuth2 = google.auth.OAuth2;
 
 var Report = (function (_events$EventEmitter) {
     function Report(private_key, service_email, numberMinutes, debug) {
@@ -26,8 +26,10 @@ var Report = (function (_events$EventEmitter) {
         _get(Object.getPrototypeOf(Report.prototype), 'constructor', this).call(this);
         this.private_key = private_key;
         this.service_email = service_email;
-        this.debug = debug || false;
         this.numberMinutes = numberMinutes || 59; // until expires, must be < 60
+        this.debug = debug || false;
+        this.scope = 'https://www.googleapis.com/auth/analytics.readonly';
+        this.api_url = 'https://www.googleapis.com/analytics/v3/data/ga';
 
         events.EventEmitter.call(this);
 
@@ -48,45 +50,49 @@ var Report = (function (_events$EventEmitter) {
             var _this2 = this;
 
             var d = new Date();
-            var assertionTime = d.getTime() / 1000; // seconds, not milliseconds
-            var exp = assertionTime + 60 * this.numberMinutes; // end validity less than 1 hour
+            var iat = d.getTime() / 1000; // iat; seconds, not milliseconds
+            var exp = iat + 60 * this.numberMinutes; // exp = iat + extra seconds
+            var google_url = 'https://www.googleapis.com/oauth2/v3/token';
 
-            // iat is current time
-            // exp is number of seconds since 1970....
             var claim_set = {
                 'iss': this.service_email,
-                'scope': 'https://www.googleapis.com/auth/analytics.readonly',
-                'aud': 'https://www.googleapis.com/oauth2/v3/token',
+                'scope': this.scope,
+                'aud': google_url,
                 'exp': exp,
-                'iat': assertionTime
+                'iat': iat
             };
-
             var signature = jwt.sign(claim_set, this.private_key, { algorithm: 'RS256' });
+
             var post_obj = {
                 grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 assertion: signature
             };
 
             request.post({
-                url: 'https://www.googleapis.com/oauth2/v3/token',
+                url: google_url,
                 form: post_obj
             }, function (err, data) {
                 if (err) return cb(err, null);
 
                 var body = JSON.parse(data.body);
+
+                // If no token presnet, then return the error
+                if (typeof body.access_token == 'undefined') {
+                    return cb('Auth request error: ' + body.error_description);
+                }
+
                 // save the new token
                 _this2.token = body.access_token;
 
-                if (typeof _this2.token == 'undefined') return cb('Request for auth token failed');
-
-                if (_this2.debug) console.log('.getToken: token rcvd: ', body.access_token);
-
-                // set expiry based on info in token
+                // set expiry time (in milliseconds) based on info in token
                 var now = new Date();
                 _this2.exp = now.setTime(now.getTime() + body.expires_in * 1000);
 
-                var tmp = new Date(_this2.exp);
-                if (_this2.debug) console.log('expiry: ', tmp.toLocaleTimeString());
+                if (_this2.debug) {
+                    console.log('.getToken success, result: ', body);
+                    var tmp = new Date(_this2.exp);
+                    console.log('expiry: ', tmp.toLocaleTimeString());
+                }
 
                 cb(null);
             });
@@ -96,22 +102,21 @@ var Report = (function (_events$EventEmitter) {
         value: function get(options, cb) {
             var _this3 = this;
 
-            var optionsString = this.json2url(options);
-            // console.log(this.private_key);
+            var google_request_url = this.api_url + '?' + this.json2url(options);
 
             // If token expired then get new one before requesting data.
             // This pattern is an asynchronous if ... then
             async.series([function (cb) {
                 var now = new Date();
                 if (now < _this3.exp) cb(null);else {
-                    console.log('ga-service-act.get: renewing expired token');
+                    if (_this3.debug) console.log('ga-service-act.get: renewing expired token');
                     _this3.getToken(cb);
                 }
             }, function (cb) {
                 var auth_obj = {
                     'auth': { 'bearer': _this3.token }
                 };
-                request.get('https://www.googleapis.com/analytics/v3/data/ga?' + optionsString, auth_obj, cb);
+                request.get(google_request_url, auth_obj, cb);
             }], function (err, data) {
                 if (err) return cb(err, null);
                 // data[1] contains data from request.get

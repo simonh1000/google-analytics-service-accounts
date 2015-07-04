@@ -21,12 +21,8 @@ Use the online [GA Admin tools](https://www.google.com/analytics/web/?hl=en#mana
 ## Example of usage
 
 ```
-/*
-* Example use of API
-*/
-var path = require('path');
-var Report = require('ga-service-cert');
 var fs = require('fs');
+var Report = require('ga-service-cert');
 
 var SERVICE_EMAIL = "123456789-2eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com";
 

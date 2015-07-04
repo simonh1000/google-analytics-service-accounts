@@ -16,7 +16,6 @@
   "repository": "https://github.com/simonh1000/ga-service-acct",
   "dependencies": {
     "async": "^0.9.0",
-    "googleapis": "^2.0.0",
     "jsonwebtoken": "^5.0.0",
     "request": "^2.53.0"
   },

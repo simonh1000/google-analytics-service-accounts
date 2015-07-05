@@ -1,11 +1,9 @@
 var request = require('request');
-var async   = require('async') ;
 var events  = require('events');
-var util    = require('util');
 var jwt     = require("jsonwebtoken");
 
-// var google = require('googleapis');
-// var OAuth2 = google.auth.OAuth2;
+// Ensures support for Node 0.10
+require("babel/polyfill");
 
 class Report extends events.EventEmitter {
 
@@ -15,18 +13,15 @@ class Report extends events.EventEmitter {
     	this.service_email = service_email;
         this.numberMinutes = numberMinutes || 59; 		// until expires, must be < 60
         this.debug = debug || false;
+        this.exp = new Date();
         this.scope = 'https://www.googleapis.com/auth/analytics.readonly';
         this.api_url = 'https://www.googleapis.com/analytics/v3/data/ga';
 
     	events.EventEmitter.call(this);
 
-    	this.getToken( err => {
-    		if (err) {
-                return this.emit('auth_error', err);
-            }
-
-    		return this.emit('ready');
-    	});
+    	this.getToken()
+        .then( () => this.emit('ready') )
+        .catch( () => this.emit('auth_error', err) );
     }
 
     getToken(cb) {
@@ -49,80 +44,86 @@ class Report extends events.EventEmitter {
     		assertion: signature
     	};
 
-    	request.post({
-    		url : google_url,
-    		form: post_obj
-    	}, (err, data) => {
-    		if (err) return cb(err, null);
+        var getTokenPromise = new Promise(
+            (resolve, reject) => {
 
-    		var body = JSON.parse(data.body);
+                // first check if we have an unexpired token
+                var now = new Date();
+    			if (now < this.exp) {
+                    if (this.debug) console.log("ga-service-act.get: token still valid");
+    				return resolve("token still valid");
+                } else {
+    				if (this.debug) console.log("ga-service-act.get: getting new token");
+                }
 
-            // If no token presnet, then return the error
-            if ((typeof body.access_token) == 'undefined') {
-                return cb("Auth request error: " + body.error_description);
+            	request.post({
+            		url : google_url,
+            		form: post_obj
+            	}, (err, data) => {
+            		if (err) return reject(err);
+
+            		var body = JSON.parse(data.body);
+
+                    // If no token presnet, then return the error
+                    if ((typeof body.access_token) == 'undefined') {
+                        return reject("Auth request error: " + body.error_description);
+                    }
+
+            		// save the new token
+            		this.token = body.access_token;
+
+            		// set expiry time (in milliseconds) based on info in token
+            		var now = new Date();
+            		this.exp = now.setTime(now.getTime() + body.expires_in * 1000);
+
+            		if (this.debug) {
+                        // console.log(".getToken success, result: ", body);
+                        var tmp = new Date(this.exp);
+                        console.log(".getToken success, expiry: ", tmp.toLocaleTimeString());
+                    }
+
+            		return resolve("success");
+            	});
             }
-
-    		// save the new token
-    		this.token = body.access_token;
-
-    		// set expiry time (in milliseconds) based on info in token
-    		var now = new Date();
-    		this.exp = now.setTime(now.getTime() + body.expires_in * 1000);
-
-    		if (this.debug) {
-                console.log(".getToken success, result: ", body);
-                var tmp = new Date(this.exp);
-                console.log("expiry: ", tmp.toLocaleTimeString());
-            }
-
-    		cb(null);
-    	});
+        );
+        return getTokenPromise;
     }
 
     get(options, cb) {
     	var google_request_url = this.api_url + '?'+this.json2url(options);
 
-    	// If token expired then get new one before requesting data.
-    	// This pattern is an asynchronous if ... then
-    	async.series([
-    		(cb) => {
-    			var now = new Date();
-    			if (now < this.exp)
-    				cb(null);
-    			else {
-    				if (this.debug) console.log("ga-service-act.get: renewing expired token");
-    				this.getToken(cb);
-    			}
-    		},
-    		(cb) => {
-    			var auth_obj = {
-    				'auth': { 'bearer': this.token }
-    			};
-    			request.get(google_request_url, auth_obj, cb);
-    		}
-    	], function(err, data) {
+        this.getToken()
+        .then( () => {
+            var auth_obj = {
+                'auth': { 'bearer': this.token }
+            };
+            request.get(google_request_url, auth_obj, (err, data) => {
     			if (err) return cb(err, null);
-    			// data[1] contains data from request.get
-    			// data[1][0] contains ...
-    			var body = JSON.parse(data[1][0].body);
+    			var body = JSON.parse(data.body);
     			// if (this.debug) console.log(".get: ", body);
     			return cb(null, body);
-    	});
+            });
+        })
+        .catch( (err) => cb(err) );
     }
 
     getManagement(options, cb) {
-    	var auth_obj = {
-    		'auth': { 'bearer': this.token }
-    	};
-    	request.get(
-    		'https://www.googleapis.com/analytics/v3/management/accounts',
-    		auth_obj,
-    		(err, data) => {
-    			if (err) return cb(err, null);
-    			var body = JSON.parse(data.body);
-    			return cb(null, body);
-    		}
-    	);
+        this.getToken()
+        .then( () => {
+            var auth_obj = {
+                'auth': { 'bearer': this.token }
+            };
+        	request.get(
+        		'https://www.googleapis.com/analytics/v3/management/accounts',
+        		auth_obj,
+        		(err, data) => {
+        			if (err) return cb(err, null);
+        			var body = JSON.parse(data.body);
+        			return cb(null, body);
+        		}
+        	);
+        })
+        .catch( (err) => cb(err) );
     }
 
     json2url(obj) {
@@ -132,7 +133,6 @@ class Report extends events.EventEmitter {
     	}
     	return res.join('&');
     }
-
 }
 
 // util.inherits(Report, events.EventEmitter);

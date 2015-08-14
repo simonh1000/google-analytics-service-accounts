@@ -1,6 +1,6 @@
 var	gulp    = require('gulp'),
 	babel   = require('gulp-babel'),
-	rename = require("gulp-rename");
+	rename  = require("gulp-rename");
 
 
 gulp.task('es6', function() {
@@ -13,7 +13,7 @@ gulp.task('es6', function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch('*.es6.js', ['es6']);
+    gulp.watch('index.es6.js', ['es6']);
 });
 
 gulp.task('default', ['es6', 'watch']);

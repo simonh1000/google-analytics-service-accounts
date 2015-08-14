@@ -12,7 +12,7 @@ var request = require('request');
 var events = require('events');
 var jwt = require('jsonwebtoken');
 
-// Ensures support for Node 0.10
+// Ensures support for Node 0.10 (e.g. of Promises)
 require('babel/polyfill');
 
 var Report = (function (_events$EventEmitter) {
@@ -21,17 +21,22 @@ var Report = (function (_events$EventEmitter) {
 
         _classCallCheck(this, Report);
 
-        _get(Object.getPrototypeOf(Report.prototype), 'constructor', this).call(this);
+        _get(Object.getPrototypeOf(Report.prototype), 'constructor', this).call(this); // inherit EventEmitter methods
+        this.debug = debug || false;
+
         this.private_key = private_key;
         this.service_email = service_email;
+
         this.numberMinutes = numberMinutes || 59; // until expires, must be < 60
-        this.debug = debug || false;
         this.exp = new Date();
+
         this.scope = 'https://www.googleapis.com/auth/analytics.readonly';
         this.api_url = 'https://www.googleapis.com/analytics/v3/data/ga';
+        this.google_url = 'https://www.googleapis.com/oauth2/v3/token';
 
         events.EventEmitter.call(this);
 
+        // get a token at launch - arguably not needed
         this.getToken().then(function () {
             return _this.emit('ready');
         })['catch'](function () {
@@ -46,46 +51,45 @@ var Report = (function (_events$EventEmitter) {
         value: function getToken(cb) {
             var _this2 = this;
 
-            var d = new Date();
-            var iat = d.getTime() / 1000; // iat; seconds, not milliseconds
-            var exp = iat + 60 * this.numberMinutes; // exp = iat + extra seconds
-            var google_url = 'https://www.googleapis.com/oauth2/v3/token';
-
-            var claim_set = {
-                'iss': this.service_email,
-                'scope': this.scope,
-                'aud': google_url,
-                'exp': exp,
-                'iat': iat
-            };
-            var signature = jwt.sign(claim_set, this.private_key, { algorithm: 'RS256' });
-
-            var post_obj = {
-                grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                assertion: signature
-            };
-
             var getTokenPromise = new Promise(function (resolve, reject) {
 
                 // first check if we have an unexpired token
                 var now = new Date();
                 if (now < _this2.exp) {
-                    if (_this2.debug) console.log('ga-service-act.get: token still valid');
+                    if (_this2.debug) console.log('ga-service-act.getToken: token still valid');
                     return resolve('token still valid');
-                } else {
-                    if (_this2.debug) console.log('ga-service-act.get: getting new token');
                 }
 
+                if (_this2.debug) console.log('ga-service-act.getToken: getting new token');
+
+                var d = new Date();
+                var iat = d.getTime() / 1000; // iat; seconds, not milliseconds
+                var exp = iat + 60 * _this2.numberMinutes; // exp = iat + extra seconds
+
+                var claim_set = {
+                    'iss': _this2.service_email,
+                    'scope': _this2.scope,
+                    'aud': _this2.google_url,
+                    'exp': exp,
+                    'iat': iat
+                };
+                var signature = jwt.sign(claim_set, _this2.private_key, { algorithm: 'RS256' });
+
+                var post_obj = {
+                    grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                    assertion: signature
+                };
+
                 request.post({
-                    url: google_url,
+                    url: _this2.google_url,
                     form: post_obj
                 }, function (err, data) {
                     if (err) return reject(err);
 
                     var body = JSON.parse(data.body);
 
-                    // If no token presnet, then return the error
-                    if (typeof body.access_token == 'undefined') {
+                    // If no token present, then return the error
+                    if (typeof body.access_token === 'undefined') {
                         return reject('Auth request error: ' + body.error_description);
                     }
 
@@ -97,7 +101,6 @@ var Report = (function (_events$EventEmitter) {
                     _this2.exp = now.setTime(now.getTime() + body.expires_in * 1000);
 
                     if (_this2.debug) {
-                        // console.log(".getToken success, result: ", body);
                         var tmp = new Date(_this2.exp);
                         console.log('.getToken success, expiry: ', tmp.toLocaleTimeString());
                     }
@@ -105,10 +108,13 @@ var Report = (function (_events$EventEmitter) {
                     return resolve('success');
                 });
             });
+
             return getTokenPromise;
         }
     }, {
         key: 'get',
+
+        // API: takes json analytics request data, and returns result
         value: function get(options, cb) {
             var _this3 = this;
 
@@ -121,12 +127,10 @@ var Report = (function (_events$EventEmitter) {
                 request.get(google_request_url, auth_obj, function (err, data) {
                     if (err) return cb(err, null);
                     var body = JSON.parse(data.body);
-                    // if (this.debug) console.log(".get: ", body);
+                    if (_this3.debug) console.log('.get: ', body);
                     return cb(null, body);
                 });
-            })['catch'](function (err) {
-                return cb(err);
-            });
+            })['catch'](cb);
         }
     }, {
         key: 'getManagement',
@@ -142,12 +146,12 @@ var Report = (function (_events$EventEmitter) {
                     var body = JSON.parse(data.body);
                     return cb(null, body);
                 });
-            })['catch'](function (err) {
-                return cb(err);
-            });
+            })['catch'](cb);
         }
     }, {
         key: 'json2url',
+
+        // converts json key:object pairs to url string
         value: function json2url(obj) {
             var res = [];
             for (var key in obj) {
@@ -159,7 +163,5 @@ var Report = (function (_events$EventEmitter) {
 
     return Report;
 })(events.EventEmitter);
-
-// util.inherits(Report, events.EventEmitter);
 
 module.exports = Report;

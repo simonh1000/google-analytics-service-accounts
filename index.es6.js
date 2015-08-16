@@ -102,7 +102,7 @@ class Report extends events.EventEmitter {
             request.get(googleRequestUrl, authObj, (err, data) => {
     			if (err) return cb(err, null);
     			var body = JSON.parse(data.body);
-                console.log(".get: ", body);
+                // console.log(".get: ", body);
     			return cb(null, body);
             });
         })

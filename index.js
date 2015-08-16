@@ -124,7 +124,7 @@ var Report = (function (_events$EventEmitter) {
                 request.get(googleRequestUrl, authObj, function (err, data) {
                     if (err) return cb(err, null);
                     var body = JSON.parse(data.body);
-                    void 0;
+                    // console.log(".get: ", body);
                     return cb(null, body);
                 });
             })["catch"](cb);

@@ -60,6 +60,7 @@ report.getManagement(null, function(err, data) {
 ```
 
 ### Change log
+ - 2.1.1 - Removed console statements from production code
  - 2.1.0 - Code improvements
  - 2.0.0 - Switch to ES6 Promises (with Babel polyfill for Node 0.10) from async
  - 1.2.0 - Switched to ES6 for development; shipping with transpiled file

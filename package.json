@@ -12,11 +12,12 @@
     "accounts"
   ],
   "author": "Simon Hampton",
-  "license": "GNU2",
+  "license": "MIT",
   "repository": "https://github.com/simonh1000/ga-service-acct",
   "engines": {
     "node": ">=0.10.x"
   },
+  "test": "./node_modules/.bin/jasmine-node spec",
   "dependencies": {
     "babel": "^5.8.21",
     "jsonwebtoken": "^5.0.0",
@@ -27,6 +28,7 @@
     "gulp-babel": "^5.1.0",
     "gulp-if": "^1.2.5",
     "gulp-rename": "^1.2.2",
-    "gulp-strip-debug": "^1.0.2"
+    "gulp-strip-debug": "^1.0.2",
+    "jasmine-node": "^1.14.5"
   }
 }

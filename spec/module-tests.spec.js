@@ -1,9 +1,10 @@
 var path = require('path');
 var fs = require('fs');
 var Report = require('../index');
+var config = require('../ignored/config.js')
 // var Report = require('./index.es6');
 
-var SERVICE_EMAIL = "412618503791-0h21osagsg02eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com";
+var SERVICE_EMAIL = config.SERVICE_EMAIL;
 
 var query = {
 	'ids': 'ga:78624107',
@@ -20,7 +21,7 @@ describe("GA analytics", function() {
 	beforeEach(function(done) {
 		report = new Report(private_key, SERVICE_EMAIL, 1);
 	    report.on('ready', function() {
-			console.log("test.js: Token: ", report.token);
+			// console.log("test.js: Token: ", report.token);
         	done();
         });
 	});
@@ -53,7 +54,6 @@ describe("GA Module", function() {
 
 		var report = new Report(private_key, SERVICE_EMAIL.slice(1), 1);
 		report.on('auth_error', function(err) {
-			console.error(err);
 			expect(err).toBeDefined();
         	done();
         });

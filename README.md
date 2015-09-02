@@ -60,6 +60,7 @@ report.getManagement(null, function(err, data) {
 ```
 
 ### Change log
+ - 2.3.0 - Replaced babel polyfill with runtime
  - 2.2.1 - Removed private data from tests
  - 2.2.0 - Added tests (unusable without my private key)
  - 2.1.1 - Removed console statements from production code

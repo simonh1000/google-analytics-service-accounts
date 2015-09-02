@@ -54,18 +54,21 @@ From version version 0.4, the code implements the simplest [management API](http
 
 ```
 report.getManagement(null, function(err, data) {
-		if (err) throw err
-		console.log(data.kind); 		// e.g. 'analytics#accounts'
+	if (err) throw err
+	console.log(data.kind); 		// e.g. 'analytics#accounts'
 });
 ```
 
 ### Change log
+ - 2.2.1 - Removed private data from tests
+ - 2.2.0 - Added tests (unusable without my private key)
  - 2.1.1 - Removed console statements from production code
  - 2.1.0 - Code improvements
  - 2.0.0 - Switch to ES6 Promises (with Babel polyfill for Node 0.10) from async
  - 1.2.0 - Switched to ES6 for development; shipping with transpiled file
  - 1.0.0 - Breaking change: constructor bow takes the key, rather than filename (to work better with e.g. system variables)
  - 0.4.1 - updated jwt to 5.0 and fixed bug in iat time
+ - 0.4.0 - Added management data method
 
 ### ToDo
  - Factor out token acquisition into separate module

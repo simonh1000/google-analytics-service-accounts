@@ -8,23 +8,23 @@ var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_ag
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var request = require("request");
 var events = require("events");
 var jwt = require("jsonwebtoken");
 
 // Ensures support for Node 0.10 (e.g. of Promises)
-require("babel/polyfill");
+require("babel").transform("code", { optional: ["runtime"] });
+// require("babel/polyfill");
 
 var Report = (function (_events$EventEmitter) {
-    _inherits(Report, _events$EventEmitter);
-
     function Report(privateKey, serviceEmail, numberMinutes, debug) {
         var _this = this;
 
         _classCallCheck(this, Report);
 
+        void 0;
         _get(Object.getPrototypeOf(Report.prototype), "constructor", this).call(this); // inherit EventEmitter methods
         this.debug = debug || false;
 
@@ -47,6 +47,8 @@ var Report = (function (_events$EventEmitter) {
             return _this.emit("auth_error", err);
         });
     }
+
+    _inherits(Report, _events$EventEmitter);
 
     _createClass(Report, [{
         key: "getToken",
@@ -108,10 +110,10 @@ var Report = (function (_events$EventEmitter) {
 
             return getTokenPromise;
         }
-
-        // API: takes json analytics request data, and returns result
     }, {
         key: "get",
+
+        // API: takes json analytics request data, and returns result
         value: function get(options, cb) {
             var _this3 = this;
 
@@ -145,10 +147,10 @@ var Report = (function (_events$EventEmitter) {
                 });
             })["catch"](cb);
         }
-
-        // converts json key:object pairs to url string
     }, {
         key: "json2url",
+
+        // converts json key:object pairs to url string
         value: function json2url(obj) {
             var res = [];
             for (var key in obj) {

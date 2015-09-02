@@ -20,6 +20,7 @@
   "test": "./node_modules/.bin/jasmine-node spec",
   "dependencies": {
     "babel": "^5.8.21",
+    "babel-runtime": "^5.8.20",
     "jsonwebtoken": "^5.0.0",
     "request": "^2.53.0"
   },

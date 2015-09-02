@@ -5,11 +5,13 @@ var events  = require("events");
 var jwt     = require("jsonwebtoken");
 
 // Ensures support for Node 0.10 (e.g. of Promises)
-require("babel/polyfill");
+require("babel").transform("code", { optional: ["runtime"] });
+// require("babel/polyfill");
 
 class Report extends events.EventEmitter {
 
     constructor(privateKey, serviceEmail, numberMinutes, debug) {
+        console.log("Creating ga-service-acct Report object");
         super();                                        // inherit EventEmitter methods
         this.debug = debug || false;
 

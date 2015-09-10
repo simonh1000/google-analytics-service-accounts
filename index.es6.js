@@ -94,19 +94,28 @@ class Report extends events.EventEmitter {
 
     // API: takes json analytics request data, and returns result
     get(options, cb) {
+
     	var googleRequestUrl = this.apiUrl + "?" + this.json2url(options);
 
-        this.getToken()
+        return this.getToken()
         .then( () => {
             var authObj = {
                 "auth": { "bearer": this.token }
             };
-            request.get(googleRequestUrl, authObj, (err, data) => {
-    			if (err) return cb(err, null);
-    			var body = JSON.parse(data.body);
-                // console.log(".get: ", body);
-    			return cb(null, body);
-            });
+            if (typeof cb == "function") {
+                request.get(googleRequestUrl, authObj, (err, data) => {
+                    if (err) return cb(err, null);
+        			return cb(err, JSON.parse(data.body));
+                });
+            } else {
+                return new Promise(function(resolve, reject) {
+                    request.get(googleRequestUrl, authObj, (err, data) => {
+                        // console.log('sending back a promise', data.body);
+                        if (err) reject(err);
+                        return resolve(JSON.parse(data.body));
+                    })
+                });
+            }
         })
         .catch( cb );
     }

@@ -119,16 +119,24 @@ var Report = (function (_events$EventEmitter) {
 
             var googleRequestUrl = this.apiUrl + "?" + this.json2url(options);
 
-            this.getToken().then(function () {
+            return this.getToken().then(function () {
                 var authObj = {
                     "auth": { "bearer": _this3.token }
                 };
-                request.get(googleRequestUrl, authObj, function (err, data) {
-                    if (err) return cb(err, null);
-                    var body = JSON.parse(data.body);
-                    // console.log(".get: ", body);
-                    return cb(null, body);
-                });
+                if (typeof cb == "function") {
+                    request.get(googleRequestUrl, authObj, function (err, data) {
+                        if (err) return cb(err, null);
+                        return cb(err, JSON.parse(data.body));
+                    });
+                } else {
+                    return new Promise(function (resolve, reject) {
+                        request.get(googleRequestUrl, authObj, function (err, data) {
+                            // console.log('sending back a promise', data.body);
+                            if (err) reject(err);
+                            return resolve(JSON.parse(data.body));
+                        });
+                    });
+                }
             })["catch"](cb);
         }
     }, {

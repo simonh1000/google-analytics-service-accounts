@@ -39,6 +39,14 @@ describe("GA analytics", function() {
     	});
     });
 
+    it("should return data as a promise", function(done) {
+        report.get(query)
+			.then(function(data) {
+	            expect(data.rows).toEqual([ [ '5140' ] ]);
+	            done();
+			});
+    });
+
     it("should get management data correctly", function(done) {
 		report.getManagement({}, function(err, data) {
 			if (err) throw err

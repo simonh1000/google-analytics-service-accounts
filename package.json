@@ -2,6 +2,7 @@
   "name": "ga-service-acct",
   "version": "2.3.0",
   "description": "Google Analytics REST API via service account",
+  "author": "Simon Hampton",
   "main": "index.js",
   "keywords": [
     "Google",
@@ -11,13 +12,14 @@
     "service",
     "accounts"
   ],
-  "author": "Simon Hampton",
   "license": "MIT",
   "repository": "https://github.com/simonh1000/ga-service-acct",
   "engines": {
     "node": ">=0.10.x"
   },
-  "test": "./node_modules/.bin/jasmine-node spec",
+  "scripts": {
+    "test": "./node_modules/.bin/jasmine-node spec"
+  },
   "dependencies": {
     "babel": "^5.8.21",
     "babel-runtime": "^5.8.20",
@@ -28,6 +30,7 @@
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",
     "gulp-if": "^1.2.5",
+    "gulp-jasmine": "^2.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-strip-debug": "^1.0.2",
     "jasmine-node": "^1.14.5"

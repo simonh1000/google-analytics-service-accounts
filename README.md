@@ -38,14 +38,21 @@ var private_key = fs.readFileSync(__dirname+'/privatekey.pem', "utf8");
 var report = new Report(private_key, SERVICE_EMAIL, true);
 
 report.on('ready', function() {
+
 	report.get(query, function(err, data) {
 		if (err) throw err
 		console.log(data); 			// e.g. [ [ '5140' ] ]
 	});
+
+	// Alternative version using a Promise
+	report.get(query)
+		.then( data => console.log(data) ) // e.g. [ [ '5140' ] ]
+		.catch( err => console.error(err) );
 });
 
 report.on('auth_error', function(err) {
-	console.error("Auth failed", err);
+	console.log(".test: auth_error", err);
+	router.get('/*', (req, res) => res.status(500).send("Unable to connect to Google"));
 });
 ```
 
@@ -60,6 +67,7 @@ report.getManagement(null, function(err, data) {
 ```
 
 ### Change log
+ - 2.4.0 - .get can also return a Promise
  - 2.3.0 - Replaced babel polyfill with runtime
  - 2.2.1 - Removed private data from tests
  - 2.2.0 - Added tests (unusable without my private key)

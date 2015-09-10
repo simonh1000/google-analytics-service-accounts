@@ -4,10 +4,17 @@ var	gulp    = require('gulp'),
 	gulpif  = require('gulp-if'),
 	stripDebug = require('gulp-strip-debug');
 
+var jasmine = require('gulp-jasmine');
+
+gulp.task('jasmine', function () {
+    return gulp.src('spec/*.spec.js')
+        .pipe(jasmine());
+});
+
 var production = true;
 // Remove console.log statements in production code
 
-gulp.task('es6', function() {
+gulp.task('es5', function() {
 	return gulp.src('index.es6.js')
 	.pipe(rename('index.js'))
 	.pipe(gulpif(production, stripDebug()))
@@ -16,7 +23,7 @@ gulp.task('es6', function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch('index.es6.js', ['es6']);
+    gulp.watch('index.es6.js', ['es5']);
 });
 
-gulp.task('default', ['es6', 'watch']);
+gulp.task('default', ['es5', 'watch']);

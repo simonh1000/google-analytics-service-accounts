@@ -5,13 +5,11 @@ var events  = require("events");
 var jwt     = require("jsonwebtoken");
 
 // Ensures support for Node 0.10 (e.g. of Promises)
-require("babel").transform("code", { optional: ["runtime"] });
-// require("babel/polyfill");
+require("babel/polyfill");
 
 class Report extends events.EventEmitter {
 
     constructor(privateKey, serviceEmail, numberMinutes, debug) {
-        console.log("Creating ga-service-acct Report object");
         super();                                        // inherit EventEmitter methods
         this.debug = debug || false;
 
@@ -94,30 +92,45 @@ class Report extends events.EventEmitter {
 
     // API: takes json analytics request data, and returns result
     get(options, cb) {
-
-    	var googleRequestUrl = this.apiUrl + "?" + this.json2url(options);
+        var googleRequestUrl = this.apiUrl + "?" + this.json2url(options);
 
         return this.getToken()
         .then( () => {
             var authObj = {
                 "auth": { "bearer": this.token }
             };
+
             if (typeof cb == "function") {
                 request.get(googleRequestUrl, authObj, (err, data) => {
                     if (err) return cb(err, null);
+
+                    var body = JSON.parse(data.body);
+                    if (body.error) cb(body.error);
+
         			return cb(err, JSON.parse(data.body));
                 });
             } else {
                 return new Promise(function(resolve, reject) {
                     request.get(googleRequestUrl, authObj, (err, data) => {
-                        // console.log('sending back a promise', data.body);
-                        if (err) reject(err);
-                        return resolve(JSON.parse(data.body));
-                    })
+                        if (err) return reject(err);
+
+                        var body = JSON.parse(data.body);
+
+                        if (body.error)
+                            return reject(body);
+
+                        return resolve(body);
+                    });
                 });
             }
         })
-        .catch( cb );
+        .catch( err => {
+            if (typeof cb == "function") {
+                cb(err);
+            } else {
+                return Promise.reject(err);
+            }
+        });
     }
 
     getManagement(options, cb) {

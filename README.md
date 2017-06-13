@@ -22,7 +22,7 @@ Use the online [GA Admin tools](https://www.google.com/analytics/web/?hl=en#mana
 
 ```
 var fs = require('fs');
-var Report = require('ga-service-cert');
+var Report = require('ga-service-acct');
 
 var SERVICE_EMAIL = "123456789-2eqk45me6ts7jn3kf0vfr@developer.gserviceaccount.com";
 
